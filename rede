@@ -1,0 +1,28 @@
+void setupWiFi(){
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("Conectando");
+
+  unsigned long tempoTimeout = millis();
+  const unsigned long timeout = 30000;
+
+  while(WiFi.status() != WL_CONNECTED){
+    delay(500);
+    Serial.print(".");
+
+    if(millis() - tempoTimeout >= timeout){
+      Serial.println("Falha ao conectar");
+      Serial.println("Reiniciando");
+      delay(2000);
+      ESP.restart();
+    }
+  }
+  Serial.println("\nConectado");
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconectarWiFi(){
+  Serial.println("Reconectando...");
+  WiFi.reconnect();
+}
