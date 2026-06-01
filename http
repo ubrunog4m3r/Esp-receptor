@@ -1,0 +1,37 @@
+void enviarBancoDados(DadosRecebidos dados) {
+  HTTPClient http;
+  
+  http.begin(apiURL);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("apikey", apiKey);
+  http.addHeader("Authorization", String("Bearer ") + apiKey);
+  http.addHeader("Prefer", "return=minimal");
+
+  char nivelStr[8], tempStr[8], umidStr[8];
+  dtostrf(dados.nivelTanque,     4, 2, nivelStr);
+  dtostrf(dados.temperatura,     4, 2, tempStr);
+  dtostrf(dados.umidade,         4, 2, umidStr);
+
+  String payload = "{";
+  payload += "\"nivel_tanque\": "       + String(nivelStr)  + ", ";
+  payload += "\"temperatura\": "        + String(tempStr)   + ", ";
+  payload += "\"umidade\": "            + String(umidStr)   + ", ";
+  payload += "\"luminosidade\": "       + String(dados.luminosidade) + ", ";
+  payload += "\"presenca_detectada\": " + String(dados.presencaDetectada ? "true" : "false");
+  payload += "}";
+
+  Serial.println("Payload: " + payload);
+
+  int httpCode = http.POST(payload);
+
+  if (httpCode > 0) {
+    Serial.println("Enviado! Código: " + String(httpCode));
+    if (httpCode == 201) {
+      Serial.println("Dado inserido com sucesso.");
+    }
+  } else {
+    Serial.println("Erro: " + http.errorToString(httpCode));
+  }
+
+  http.end();
+}
