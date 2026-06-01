@@ -1,0 +1,31 @@
+void aoReceber(const esp_now_recv_info *info, const uint8_t* data, int len){
+  if(len == sizeof(dados)){
+    memcpy(&dados, data, sizeof(dados));
+
+    Serial.print("Nivel de tinta: ");     
+    Serial.print(dados.nivelTanque);
+    Serial.println(" %");
+    Serial.print("Temperatura: ");    
+    Serial.print(dados.temperatura);
+    Serial.println(" °C");
+    Serial.print("Umidade: "); 
+    Serial.print(dados.umidade);
+    Serial.println(" %");
+    Serial.print("Luminosidade: ");
+    Serial.println(dados.luminosidade);
+    Serial.print("Presenca: ");
+    Serial.println(dados.presencaDetectada ? "DETECTADA\n" : "Não detectada\n");
+
+    dadosRecebidos = true;
+  }
+}
+
+void setupEspNow(){
+  if(esp_now_init() != ESP_OK){
+    Serial.println("Erro ao iniciar ESP-NOW");
+    delay(2000);
+    ESP.restart();
+  }
+  esp_now_register_recv_cb(aoReceber);
+  Serial.println("Receptor pronto");
+}
