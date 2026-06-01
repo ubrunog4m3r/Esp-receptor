@@ -1,0 +1,46 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <esp_now.h>
+#include "secrets.h"
+
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+
+const char* apiURL = API_URL;
+const char* apiKey = API_KEY;
+
+typedef struct{
+  float nivelTanque;
+  float temperatura;
+  float umidade;
+  uint16_t luminosidade;
+  bool presencaDetectada;
+} DadosRecebidos;
+
+DadosRecebidos dados;
+
+bool dadosRecebidos = false;
+
+void setup() {
+  Serial.begin(115200);
+  setupWiFi();
+  setupEspNow();
+}
+
+void loop() {  
+  const unsigned long intervaloLoop = 2000;
+  static unsigned long tempoLoop = 0;
+  if(millis() - tempoLoop >= intervaloLoop){
+    tempoLoop = millis();
+
+    if(WiFi.status() == WL_CONNECTED){
+      if(dadosRecebidos){
+        enviarBancoDados(dados);
+        dadosRecebidos = false;
+      }
+    }
+    else{
+      reconectarWiFi();
+    }
+  } 
+}
